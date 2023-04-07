@@ -4,6 +4,8 @@ import java.math.BigInteger
 
 import androidx.annotation.WorkerThread
 import kotlinx.coroutines.*
+import java.lang.Integer.max
+import java.lang.Integer.min
 import java.util.concurrent.TimeUnit
 
 class FactorialUseCase {
@@ -33,24 +35,28 @@ class FactorialUseCase {
     private fun getComputationRanges(factorialArgument: Int) : Array<ComputationRange> {
         val numberOfThreads = getNumberOfThreads(factorialArgument)
 
-        val threadsComputationRanges = Array(numberOfThreads) { ComputationRange(0, 0) }
+        val threadsComputationRanges = mutableListOf<ComputationRange>()
 
-        val computationRangeSize = factorialArgument / numberOfThreads
+        val i1: Int = factorialArgument / numberOfThreads
+        val computationRangeSize = max(2, i1)
 
-        var nextComputationRangeEnd = factorialArgument.toLong()
-
-        for (i in numberOfThreads - 1 downTo 0) {
-            threadsComputationRanges[i] = ComputationRange(
-                    nextComputationRangeEnd - computationRangeSize + 1,
-                    nextComputationRangeEnd
-            )
-            nextComputationRangeEnd = threadsComputationRanges[i].start - 1
+        for (i in factorialArgument downTo 1 step computationRangeSize) {
+            val startCandidate = (i - computationRangeSize + 1).toLong()
+            val start = if (startCandidate > 0) {
+                startCandidate
+            } else {
+                1
+            }
+            threadsComputationRanges.add(ComputationRange(
+                start,
+                    i.toLong()
+            ))
         }
 
         // add potentially "remaining" values to first thread's range
         //threadsComputationRanges[0] = ComputationRange(1, threadsComputationRanges[0].end)
 
-        return threadsComputationRanges
+        return threadsComputationRanges.toTypedArray()
     }
 
     private fun getNumberOfThreads(factorialArgument: Int): Int {
