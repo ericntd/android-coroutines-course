@@ -14,10 +14,7 @@ import com.techyourchance.coroutines.R
 import com.techyourchance.coroutines.common.BaseFragment
 import com.techyourchance.coroutines.common.ThreadInfoLogger
 import com.techyourchance.coroutines.home.ScreenReachableFromHome
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 
 class BasicCoroutinesDemoFragment : BaseFragment() {
 
@@ -38,8 +35,12 @@ class BasicCoroutinesDemoFragment : BaseFragment() {
             logThreadInfo("button callback")
 
             coroutineScope.launch {
+                val iterationsCount = executeBenchmark() // do sth async in background and return result
+                // Do something while waiting
+                doOtherThingsInBackground()
                 btnStart.isEnabled = false
-                val iterationsCount = executeBenchmark()
+                Toast.makeText(requireContext(), "something that needs to happen right away", Toast.LENGTH_SHORT).show()
+                // Process the result from async work
                 Toast.makeText(requireContext(), "$iterationsCount", Toast.LENGTH_SHORT).show()
                 btnStart.isEnabled = true
             }
@@ -47,6 +48,16 @@ class BasicCoroutinesDemoFragment : BaseFragment() {
         }
 
         return view
+    }
+
+    private suspend fun doOtherThingsInBackground() {
+        withContext(Dispatchers.IO) {
+            var iterationsCount: Long = 0
+            while (iterationsCount < 10) {
+                logThreadInfo("other work")
+                iterationsCount++
+            }
+        }
     }
 
     private suspend fun executeBenchmark(): Long {

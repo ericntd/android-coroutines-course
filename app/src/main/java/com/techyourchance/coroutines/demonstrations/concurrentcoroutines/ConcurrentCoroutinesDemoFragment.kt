@@ -41,6 +41,8 @@ class ConcurrentCoroutinesDemoFragment : BaseFragment() {
                 updateRemainingTime(benchmarkDurationSeconds)
             }
 
+            logThreadInfo("something in between")
+
             job = coroutineScope.launch {
                 btnStart.isEnabled = false
                 val iterationsCount = executeBenchmark(benchmarkDurationSeconds)

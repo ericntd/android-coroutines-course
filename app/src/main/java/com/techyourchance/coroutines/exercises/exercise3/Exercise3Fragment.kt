@@ -15,6 +15,7 @@ import com.techyourchance.coroutines.common.ThreadInfoLogger
 import com.techyourchance.coroutines.exercises.exercise1.GetReputationEndpoint
 import com.techyourchance.coroutines.home.ScreenReachableFromHome
 import kotlinx.coroutines.*
+import java.util.concurrent.atomic.AtomicBoolean
 
 class Exercise3Fragment : BaseFragment() {
 
@@ -55,9 +56,18 @@ class Exercise3Fragment : BaseFragment() {
         btnGetReputation = view.findViewById(R.id.btn_get_reputation)
         btnGetReputation.setOnClickListener {
             logThreadInfo("button callback")
-            job = coroutineScope.launch {
+
+            val hasFinishedJob = AtomicBoolean()
+            val job = coroutineScope.launch(start = CoroutineStart.LAZY) {
+                updateElapsedTime(hasFinishedJob)
+            }
+            job.start()
+
+            coroutineScope.launch {
                 btnGetReputation.isEnabled = false
                 val reputation = getReputationForUser(edtUserId.text.toString())
+                hasFinishedJob.set(true)
+                txtElapsedTime.visibility = View.GONE
                 Toast.makeText(requireContext(), "reputation: $reputation", Toast.LENGTH_SHORT).show()
                 btnGetReputation.isEnabled = true
             }
@@ -66,9 +76,18 @@ class Exercise3Fragment : BaseFragment() {
         return view
     }
 
+    private suspend fun updateElapsedTime(hasFinishedJob: AtomicBoolean) {
+        var timeElapsed = 0
+        while (!hasFinishedJob.get()) {
+            delay(1000)
+            timeElapsed++
+            txtElapsedTime.text = "$timeElapsed seconds elapsed"
+        }
+    }
+
     override fun onStop() {
         super.onStop()
-        job?.cancel()
+        coroutineScope.coroutineContext.cancelChildren()
         btnGetReputation.isEnabled = true
     }
 

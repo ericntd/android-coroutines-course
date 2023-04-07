@@ -67,6 +67,10 @@ class CoroutinesCancellationDemoFragment : BaseFragment() {
 
             var iterationsCount: Long = 0
             while (System.nanoTime() < stopTimeNano) {
+                if (!isActive) {
+                    return@withContext -1L
+                }
+                logThreadInfo("iteration $iterationsCount")
                 iterationsCount++
             }
 

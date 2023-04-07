@@ -14,6 +14,7 @@ import com.techyourchance.coroutines.R
 import com.techyourchance.coroutines.common.BaseFragment
 import com.techyourchance.coroutines.common.ThreadInfoLogger
 import com.techyourchance.coroutines.home.ScreenReachableFromHome
+import kotlinx.coroutines.*
 
 class Exercise1Fragment : BaseFragment() {
 
@@ -23,6 +24,8 @@ class Exercise1Fragment : BaseFragment() {
     private lateinit var btnGetReputation: Button
 
     private lateinit var getReputationEndpoint: GetReputationEndpoint
+
+    private var job: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,24 +49,32 @@ class Exercise1Fragment : BaseFragment() {
         btnGetReputation = view.findViewById(R.id.btn_get_reputation)
         btnGetReputation.setOnClickListener {
             logThreadInfo("button callback")
-            btnGetReputation.isEnabled = false
-            getReputationForUser(edtUserId.text.toString())
-            btnGetReputation.isEnabled = true
+
+            job = CoroutineScope(Dispatchers.Main).launch {
+                btnGetReputation.isEnabled = false
+                val reputation = getReputationForUser(edtUserId.text.toString())
+                Toast.makeText(requireContext(), "reputation: $reputation", Toast.LENGTH_SHORT).show()
+                btnGetReputation.isEnabled = true
+            }
         }
 
         return view
     }
 
-    private fun getReputationForUser(userId: String) {
-        logThreadInfo("getReputationForUser()")
-
-        val reputation = getReputationEndpoint.getReputation(userId)
-
-        Toast.makeText(requireContext(), "reputation: $reputation", Toast.LENGTH_SHORT).show()
+    private suspend fun getReputationForUser(userId: String): Int {
+        return withContext(Dispatchers.IO) {
+            logThreadInfo("getReputationForUser()")
+            getReputationEndpoint.getReputation(userId)
+        }
     }
 
     private fun logThreadInfo(message: String) {
         ThreadInfoLogger.logThreadInfo(message)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        job?.cancel()
     }
 
     companion object {
