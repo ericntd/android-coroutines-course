@@ -32,29 +32,31 @@ class FactorialUseCase {
 
     }
 
-    private fun getComputationRanges(factorialArgument: Int) : Array<ComputationRange> {
+    private fun getComputationRanges(factorialArgument: Int): Array<ComputationRange> {
         val numberOfThreads = getNumberOfThreads(factorialArgument)
 
         val threadsComputationRanges = mutableListOf<ComputationRange>()
 
-        val i1: Int = factorialArgument / numberOfThreads
-        val computationRangeSize = max(2, i1)
+        val computationRangeSizeCandidate : Int = factorialArgument / numberOfThreads
+        val computationRangeSize = max(2, computationRangeSizeCandidate)
 
         for (i in factorialArgument downTo 1 step computationRangeSize) {
+            /*
+            We want to exclude 0 in our computation
+             */
             val startCandidate = (i - computationRangeSize + 1).toLong()
             val start = if (startCandidate > 0) {
                 startCandidate
             } else {
                 1
             }
-            threadsComputationRanges.add(ComputationRange(
-                start,
+            threadsComputationRanges.add(
+                ComputationRange(
+                    start,
                     i.toLong()
-            ))
+                )
+            )
         }
-
-        // add potentially "remaining" values to first thread's range
-        //threadsComputationRanges[0] = ComputationRange(1, threadsComputationRanges[0].end)
 
         return threadsComputationRanges.toTypedArray()
     }
