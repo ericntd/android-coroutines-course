@@ -3,7 +3,7 @@ package com.techyourchance.coroutines.demonstrations.structuredconcurrency.kotli
 import kotlinx.coroutines.*
 import java.math.BigInteger
 
-internal class FibonacciUseCaseAsyncUiCoroutines(private val bgDispatcher: CoroutineDispatcher) {
+class FibonacciUseCaseAsyncUiCoroutines(private val bgDispatcher: CoroutineDispatcher) {
 
     interface Callback {
         fun onFibonacciComputed(result: BigInteger?)

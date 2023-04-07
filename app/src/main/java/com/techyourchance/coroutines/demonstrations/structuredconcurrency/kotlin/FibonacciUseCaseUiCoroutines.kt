@@ -3,7 +3,7 @@ package com.techyourchance.coroutines.demonstrations.structuredconcurrency.kotli
 import kotlinx.coroutines.*
 import java.math.BigInteger
 
-internal class FibonacciUseCaseUiCoroutines() {
+class FibonacciUseCaseUiCoroutines() {
 
     suspend fun computeFibonacci(index: Int): BigInteger = withContext(Dispatchers.Default) {
         if (index == 0) {
