@@ -84,4 +84,5 @@ class ActivityCompositionRoot(
 
     val loginUseCaseUncaughtException get() = LoginUseCaseUncaughtException(loginEndpointUncaughtException, userStateManager)
 
+    val myReputationUseCase get() = com.techyourchance.coroutines.exercises.exercise5.GetReputationUseCase(getReputationEndpoint)
 }
