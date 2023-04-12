@@ -68,7 +68,11 @@ class Exercise10Fragment : BaseFragment() {
         })
 
         btnLogin.setOnClickListener {
-                coroutineScope.launch {
+            val exceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
+                throwable.printStackTrace()
+            }
+            val supervisorJob = SupervisorJob()
+                coroutineScope.launch(exceptionHandler + supervisorJob) {
                     try {
                         btnLogin.isEnabled = false
                         val result = loginUseCase.logIn(getUsername(), getPassword())
