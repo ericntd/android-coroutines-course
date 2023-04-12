@@ -21,6 +21,11 @@ class MainActivity : AppCompatActivity(), ToolbarDelegate {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        /*
+        Necessary to print CoroutineName
+         */
+//        System.setProperty("kotlinx.coroutines.debug", "on" )
+
         setContentView(R.layout.activity_main)
 
         screensNavigator = compositionRoot.screensNavigator

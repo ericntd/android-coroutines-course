@@ -1,12 +1,15 @@
 package com.techyourchance.coroutines.exercises.exercise8
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 
 class UsersDao {
 
-    suspend fun upsertUserInfo(user: User) = withContext(Dispatchers.IO) {
-        delay(500)
+    suspend fun upsertUserInfo(user: User) = withContext(Dispatchers.IO + CoroutineName("db")) {
+//        try {
+//            println("upsertUserInfo ${user.name}")
+            delay(1000)
+//        } catch (e: CancellationException) {
+//            println("upsert cancelled")
+//        }
     }
 }

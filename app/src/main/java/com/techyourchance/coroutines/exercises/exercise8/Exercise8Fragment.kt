@@ -16,6 +16,7 @@ import kotlinx.coroutines.*
 class Exercise8Fragment : BaseFragment() {
 
     private val coroutineScope = CoroutineScope(Dispatchers.Main.immediate)
+    private val specialJob = Job()
 
     override val screenTitle get() = ScreenReachableFromHome.EXERCISE_8.description
 
@@ -46,12 +47,14 @@ class Exercise8Fragment : BaseFragment() {
                 updateElapsedTime()
             }
 
-            coroutineScope.launch {
+            coroutineScope.launch(specialJob) {
                 try {
+                    this.printCoroutineScopeInfo()
                     btnFetch.isEnabled = false
-                    fetchAndCacheUsersUseCase.fetchAndCacheUsers(userIds)
+                    fetchAndCacheUsersUseCase.fetchAndCacheUsers(userIds, context = coroutineContext)
                     updateElapsedTimeJob.cancel()
                 } catch (e: CancellationException) {
+                    e.printStackTrace()
                     updateElapsedTimeJob.cancelAndJoin()
                     txtElapsedTime.text = ""
                 } finally {
@@ -63,10 +66,19 @@ class Exercise8Fragment : BaseFragment() {
         return view
     }
 
+    fun CoroutineScope.printCoroutineScopeInfo() {
+        println()
+        println("CoroutineScope: $this")
+        println("CoroutineContext: ${this.coroutineContext}")
+        println("Job: ${this.coroutineContext[Job]}")
+        println()
+    }
+
     override fun onStop() {
         logThreadInfo("onStop()")
         super.onStop()
         coroutineScope.coroutineContext.cancelChildren()
+        specialJob.cancel()
     }
 
 
